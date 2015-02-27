@@ -5,31 +5,39 @@ using NLog;
 
 namespace battleships
 {
-	public class AiTester
+	public class AiTester : IAiTester
 	{
 		private static readonly Logger resultsLog = LogManager.GetLogger("results");
-		private readonly Settings settings;
+		private readonly ISettings settings;
+		private readonly IMapGenerator gen;
+		private readonly IGameVisualizer vis;
+		private readonly IProcessMonitor monitor;
+		private /*readonly*/ IAi ai;
 
-		public AiTester(Settings settings)
+		public AiTester(ISettings settings, IMapGenerator gen, IGameVisualizer vis, IProcessMonitor monitor, IAi ai)
 		{
 			this.settings = settings;
+			this.gen = gen;
+			this.vis = vis;
+			this.monitor = monitor;
+			this.ai = ai;
 		}
 
 		public void TestSingleFile(string exe)
 		{
-			var gen = new MapGenerator(settings, new Random(settings.RandomSeed));
-			var vis = new GameVisualizer();
-			var monitor = new ProcessMonitor(TimeSpan.FromSeconds(settings.TimeLimitSeconds * settings.GamesCount), settings.MemoryLimit);
+			//var gen = new MapGenerator(settings, new Random(settings.RandomSeed));
+			//var vis = new GameVisualizer();
+			//var monitor = new ProcessMonitor(TimeSpan.FromSeconds(settings.TimeLimitSeconds * settings.GamesCount), settings.MemoryLimit);
 			var badShots = 0;
 			var crashes = 0;
 			var gamesPlayed = 0;
 			var shots = new List<int>();
-			var ai = new Ai(exe, monitor);
+			//var ai = new Ai(exe, monitor);
 			for (var gameIndex = 0; gameIndex < settings.GamesCount; gameIndex++)
 			{
 				var map = gen.GenerateMap();
 				var game = new Game(map, ai);
-				RunGameToEnd(game, vis);
+				RunGameToEnd(game);
 				gamesPlayed++;
 				badShots += game.BadShots;
 				if (game.AiCrashed)
@@ -48,10 +56,10 @@ namespace battleships
 				}
 			}
 			ai.Dispose();
-			WriteTotal(ai, shots, crashes, badShots, gamesPlayed);
+			WriteTotal(shots, crashes, badShots, gamesPlayed);
 		}
 
-		private void RunGameToEnd(Game game, GameVisualizer vis)
+		private void RunGameToEnd(Game game)
 		{
 			while (!game.IsOver())
 			{
@@ -66,7 +74,7 @@ namespace battleships
 			}
 		}
 
-		private void WriteTotal(Ai ai, List<int> shots, int crashes, int badShots, int gamesPlayed)
+		private void WriteTotal(List<int> shots, int crashes, int badShots, int gamesPlayed)
 		{
 			if (shots.Count == 0) shots.Add(1000 * 1000);
 			shots.Sort();

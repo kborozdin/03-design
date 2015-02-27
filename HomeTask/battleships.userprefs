@@ -1,0 +1,29 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="battleships/A.cs">
+    <Files>
+      <File FileName="battleships/Program.cs" Line="27" Column="1" />
+      <File FileName="battleships/Set.cs" Line="31" Column="15" />
+      <File FileName="battleships/A.cs" Line="8" Column="3" />
+      <File FileName="battleships/IA.cs" Line="1" Column="1" />
+      <File FileName="battleships/Settings1.cs" Line="9" Column="36" />
+      <File FileName="battleships/ISettings.cs" Line="18" Column="30" />
+      <File FileName="battleships/AiTester.cs" Line="1" Column="1" />
+      <File FileName="battleships/IAiTester.cs" Line="1" Column="1" />
+      <File FileName="battleships/IMapGenerator.cs" Line="1" Column="1" />
+      <File FileName="battleships/MapGenerator.cs" Line="45" Column="34" />
+      <File FileName="battleships/Game.cs" Line="1" Column="1" />
+      <File FileName="battleships/GameVisualizer.cs" Line="1" Column="1" />
+      <File FileName="battleships/IGameVisualizer.cs" Line="1" Column="1" />
+      <File FileName="battleships/ProcessMonitor.cs" Line="1" Column="1" />
+      <File FileName="battleships/IProcessMonitor.cs" Line="1" Column="1" />
+      <File FileName="battleships/Ai.cs" Line="1" Column="1" />
+      <File FileName="battleships/IAi.cs" Line="1" Column="1" />
+      <File FileName="battleships/Map.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

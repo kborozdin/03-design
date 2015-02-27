@@ -4,12 +4,12 @@ using NUnit.Framework;
 
 namespace battleships
 {
-	public class MapGenerator
+	public class MapGenerator : IMapGenerator
 	{
-		private readonly Settings settings;
+		private readonly ISettings settings;
 		private readonly Random random;
 
-		public MapGenerator(Settings settings, Random random)
+		public MapGenerator(ISettings settings, Random random)
 		{
 			this.settings = settings;
 			this.random = random;
@@ -41,7 +41,7 @@ namespace battleships
 		[Test]
 		public void always_succeed_on_standard_map()
 		{
-			var settings = new Settings { Width = 10, Height = 10, Ships = new[] { 1, 1, 1, 1, 2, 2, 2, 3, 3, 4 } };
+			var settings = new Settings1 { Width = 10, Height = 10, Ships = new[] { 1, 1, 1, 1, 2, 2, 2, 3, 3, 4 } };
 			var gen = new MapGenerator(settings, new Random());
 			for (var i = 0; i < 10000; i++)
 				gen.GenerateMap();
