@@ -2,21 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Ninject;
 
 namespace battleships
 {
-	public class Settings
+	public class Settings : ISettings
 	{
-		public int CrashLimit;
-		public int GamesCount;
-		public int Height;
-		public bool Interactive;
-		public int MemoryLimit;
-		public int RandomSeed;
-		public int[] Ships;
-		public int TimeLimitSeconds;
-		public bool Verbose;
-		public int Width;
+		public int CrashLimit { get; set; }
+		public int GamesCount { get; set; }
+		public int Height { get; set; }
+		public bool Interactive { get; set; }
+		public int MemoryLimit { get; set; }
+		public int RandomSeed { get; set; }
+		public int[] Ships { get; set; }
+		public int TimeLimitSeconds { get; set; }
+		public bool Verbose { get; set; }
+		public int Width { get; set; }
+
+		public TimeSpan TimeLimit
+		{
+			get
+			{
+				return TimeSpan.FromSeconds(TimeLimitSeconds * GamesCount);
+			}
+		}
 
 		public Settings()
 		{

@@ -12,7 +12,7 @@ namespace battleships
 		private readonly IMapGenerator gen;
 		private readonly IGameVisualizer vis;
 		private readonly IProcessMonitor monitor;
-		private /*readonly*/ IAi ai;
+		private readonly IAi ai;
 
 		public AiTester(ISettings settings, IMapGenerator gen, IGameVisualizer vis, IProcessMonitor monitor, IAi ai)
 		{
@@ -25,14 +25,10 @@ namespace battleships
 
 		public void TestSingleFile(string exe)
 		{
-			//var gen = new MapGenerator(settings, new Random(settings.RandomSeed));
-			//var vis = new GameVisualizer();
-			//var monitor = new ProcessMonitor(TimeSpan.FromSeconds(settings.TimeLimitSeconds * settings.GamesCount), settings.MemoryLimit);
 			var badShots = 0;
 			var crashes = 0;
 			var gamesPlayed = 0;
 			var shots = new List<int>();
-			//var ai = new Ai(exe, monitor);
 			for (var gameIndex = 0; gameIndex < settings.GamesCount; gameIndex++)
 			{
 				var map = gen.GenerateMap();
@@ -44,7 +40,7 @@ namespace battleships
 				{
 					crashes++;
 					if (crashes > settings.CrashLimit) break;
-					ai = new Ai(exe, monitor);
+					ai.Reset();
 				}
 				else
 					shots.Add(game.TurnsCount);

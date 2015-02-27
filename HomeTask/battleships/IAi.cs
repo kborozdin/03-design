@@ -8,6 +8,7 @@ namespace battleships
 		Vector Init(int width, int height, int[] shipSizes);
 		Vector GetNextShot(Vector lastShotTarget, ShtEffct lastShot);
 		void Dispose();
+		void Reset();
 	}
 }
 

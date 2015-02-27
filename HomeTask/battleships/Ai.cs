@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -99,6 +99,11 @@ namespace battleships
 			{
 				throw new Exception("Wrong ai output: " + output, e);
 			}
+		}
+
+		public void Reset()
+		{
+			process = null;
 		}
 	}
 }

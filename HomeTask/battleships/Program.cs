@@ -12,7 +12,6 @@ namespace battleships
 	{
 		private static void Main(string[] args)
 		{
-			/*
 			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 			if (args.Length == 0)
 			{
@@ -20,34 +19,26 @@ namespace battleships
 				return;
 			}
 			var aiPath = args[0];
-			*/
 
-			var kernel = new StandardKernel();
-			//kernel.Bind<ISettings>().To<Settings1>();
-			var x = kernel.Get<A>();
-			//kernel.Bind<ISettings>().To<Settings>();
-			//TODO
-			//ISettings settings = new Settings("settings.txt"); //TODO
-			//Settings settings = kernel.Get<Settings>();//(new ConstructorArgument("settingsFilename", "settings.txt"));
-			/*
-			//TODO what to do here?
+			var settings = new Settings("settings.txt");
 			var random = new Random(settings.RandomSeed);
 
-			//kernel.Bind<Random>().ToConstant<Random>(random);
-			//kernel.Bind<ISettings>().ToConstant<ISettings>(settings);
-			//kernel.Bind<IMapGenerator>().To<MapGenerator>();
+			var kernel = new StandardKernel();
+			kernel.Bind<ISettings>().ToConstant<ISettings>(settings);
+			kernel.Bind<Random>().ToConstant<Random>(random);
 
-			IMapGenerator gen = new MapGenerator(settings, random); //TODO
-			//var gen = kernel.Get<IMapGenerator>();
-			IGameVisualizer vis = new GameVisualizer(); //TODO
-			IProcessMonitor monitor = new ProcessMonitor(settings); //TODO
-			IAi ai = new Ai(aiPath, monitor); //TODO
-			IAiTester tester = new AiTester(settings, gen, vis, monitor, ai); //TODO
+			kernel.Bind<IMapGenerator>().To<MapGenerator>();
+			kernel.Bind<IGameVisualizer>().To<GameVisualizer>();
+			kernel.Bind<IProcessMonitor>().To<ProcessMonitor>();
+			kernel.Bind<IAi>().To<Ai>().WithConstructorArgument("exePath", aiPath);
+			kernel.Bind<IAiTester>().To<AiTester>();
+
+			var tester = kernel.Get<IAiTester>();
+
 			if (File.Exists(aiPath))
 				tester.TestSingleFile(aiPath);
 			else
 				Console.WriteLine("No AI exe-file " + aiPath);
-			*/
 		}
 	}
 }
