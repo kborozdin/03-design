@@ -2,73 +2,86 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
+using System.Diagnostics;
 
 namespace battleships
 {
+	public delegate void OnVisualizationHandler(Game game);
+
 	public class AiTester
 	{
 		private static readonly Logger resultsLog = LogManager.GetLogger("results");
 		private readonly Settings settings;
+		Action<string> messageLogger;
+		Func<Map> generateMap;
 
-		public AiTester(Settings settings)
+		public event OnProcessRegisteredHandler OnProcessRegistered;
+		public event OnVisualizationHandler OnVisualization;
+
+		public AiTester(Settings settings, Func<Map> generateMap, Action<string> messageLogger)
 		{
 			this.settings = settings;
+			this.generateMap = generateMap;
+			this.messageLogger = messageLogger;
 		}
 
 		public void TestSingleFile(string exe)
 		{
-			var gen = new MapGenerator(settings, new Random(settings.RandomSeed));
-			var vis = new GameVisualizer();
-			var monitor = new ProcessMonitor(TimeSpan.FromSeconds(settings.TimeLimitSeconds * settings.GamesCount), settings.MemoryLimit);
-			var badShots = 0;
-			var crashes = 0;
-			var gamesPlayed = 0;
-			var shots = new List<int>();
-			var ai = new Ai(exe, monitor);
+			var stats = new Statistics();
+			var ai = new Ai(exe);
+			ai.OnProcessRegistered += p => OnProcessRegistered(p);
 			for (var gameIndex = 0; gameIndex < settings.GamesCount; gameIndex++)
 			{
-				var map = gen.GenerateMap();
-				var game = new Game(map, ai);
-				RunGameToEnd(game, vis);
-				gamesPlayed++;
-				badShots += game.BadShots;
-				if (game.AiCrashed)
-				{
-					crashes++;
-					if (crashes > settings.CrashLimit) break;
-					ai = new Ai(exe, monitor);
-				}
-				else
-					shots.Add(game.TurnsCount);
-				if (settings.Verbose)
-				{
-					Console.WriteLine(
-						"Game #{3,4}: Turns {0,4}, BadShots {1}{2}",
-						game.TurnsCount, game.BadShots, game.AiCrashed ? ", Crashed" : "", gameIndex);
-				}
+				RunOneGame(gameIndex, ai, stats);
+				if (stats.Crashes > settings.CrashLimit)
+					break;
 			}
 			ai.Dispose();
-			WriteTotal(ai, shots, crashes, badShots, gamesPlayed);
+			WriteTotal(ai, stats, settings.GamesCount);
 		}
 
-		private void RunGameToEnd(Game game, GameVisualizer vis)
+		private void RunOneGame(int gameIndex, Ai ai, Statistics stats)
+		{
+			var map = generateMap();
+			var game = new Game(map, ai);
+			RunGameToEnd(game);
+			stats.AddToBadShots(game.BadShots);
+			if (game.AiCrashed)
+			{
+				stats.HaveCrushed();
+				ai.Reset();
+			}
+			else
+				stats.AddShot(game.TurnsCount);
+			if (settings.Verbose)
+			{
+				messageLogger(string.Format("Game #{3,4}: Turns {0,4}, BadShots {1}{2}",
+					game.TurnsCount, game.BadShots, game.AiCrashed ? ", Crashed" : "", gameIndex));
+			}
+		}
+
+		private void RunGameToEnd(Game game)
 		{
 			while (!game.IsOver())
 			{
 				game.MakeStep();
 				if (settings.Interactive)
 				{
-					vis.Visualize(game);
+					OnVisualization(game);
 					if (game.AiCrashed)
-						Console.WriteLine(game.LastError.Message);
+						messageLogger(game.LastError.Message.ToString());
 					Console.ReadKey();
 				}
 			}
 		}
 
-		private void WriteTotal(Ai ai, List<int> shots, int crashes, int badShots, int gamesPlayed)
+		private void WriteTotal(Ai ai, Statistics stats, int gamesPlayed)
 		{
-			if (shots.Count == 0) shots.Add(1000 * 1000);
+			var shots = stats.Shots;
+			var badShots = stats.BadShots;
+			var crashes = stats.Crashes;
+			if (shots.Count == 0)
+				shots.Add(1000 * 1000);
 			shots.Sort();
 			var median = shots.Count % 2 == 1 ? shots[shots.Count / 2] : (shots[shots.Count / 2] + shots[(shots.Count + 1) / 2]) / 2;
 			var mean = shots.Average();
@@ -80,11 +93,11 @@ namespace battleships
 			var headers = FormatTableRow(new object[] { "AiName", "Mean", "Sigma", "Median", "Crashes", "Bad%", "Games", "Score" });
 			var message = FormatTableRow(new object[] { ai.Name, mean, sigma, median, crashes, badFraction, gamesPlayed, score });
 			resultsLog.Info(message);
-			Console.WriteLine();
-			Console.WriteLine("Score statistics");
-			Console.WriteLine("================");
-			Console.WriteLine(headers);
-			Console.WriteLine(message);
+			messageLogger("");
+			messageLogger("Score statistics");
+			messageLogger("================");
+			messageLogger(headers);
+			messageLogger(message);
 		}
 
 		private string FormatTableRow(object[] values)

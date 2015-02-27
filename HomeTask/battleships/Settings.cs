@@ -18,6 +18,14 @@ namespace battleships
 		public bool Verbose;
 		public int Width;
 
+		public TimeSpan TimeLimit
+		{
+			get
+			{
+				return TimeSpan.FromSeconds(TimeLimitSeconds * GamesCount);
+			}
+		}
+
 		public Settings()
 		{
 		}

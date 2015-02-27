@@ -6,17 +6,19 @@ using NLog;
 
 namespace battleships
 {
+	public delegate void OnProcessRegisteredHandler(Process process);
+
 	public class Ai
 	{
 		private static readonly Logger log = LogManager.GetCurrentClassLogger();
 		private Process process;
 		private readonly string exePath;
-		private readonly ProcessMonitor monitor;
 
-		public Ai(string exePath, ProcessMonitor monitor)
+		public event OnProcessRegisteredHandler OnProcessRegistered;
+
+		public Ai(string exePath)
 		{
 			this.exePath = exePath;
-			this.monitor = monitor;
 		}
 
 		public string Name
@@ -75,7 +77,7 @@ namespace battleships
 				WindowStyle = ProcessWindowStyle.Hidden
 			};
 			var aiProcess = Process.Start(startInfo);
-			monitor.Register(aiProcess);
+			OnProcessRegistered(aiProcess);
 			return aiProcess;
 		}
 
@@ -99,6 +101,11 @@ namespace battleships
 			{
 				throw new Exception("Wrong ai output: " + output, e);
 			}
+		}
+
+		public void Reset()
+		{
+			process = null;
 		}
 	}
 }
