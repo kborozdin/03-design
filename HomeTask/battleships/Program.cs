@@ -26,6 +26,7 @@ namespace battleships
 			var kernel = new StandardKernel();
 			kernel.Bind<ISettings>().ToConstant<ISettings>(settings);
 			kernel.Bind<Random>().ToConstant<Random>(random);
+			kernel.Bind<TextWriter>().ToConstant<TextWriter>(Console.Out);
 
 			kernel.Bind<IMapGenerator>().To<MapGenerator>();
 			kernel.Bind<IGameVisualizer>().To<GameVisualizer>();

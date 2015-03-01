@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NLog;
+using System.IO;
 
 namespace battleships
 {
@@ -13,14 +14,16 @@ namespace battleships
 		private readonly IGameVisualizer vis;
 		private readonly IProcessMonitor monitor;
 		private readonly IAi ai;
+		private readonly TextWriter writer;
 
-		public AiTester(ISettings settings, IMapGenerator gen, IGameVisualizer vis, IProcessMonitor monitor, IAi ai)
+		public AiTester(ISettings settings, IMapGenerator gen, IGameVisualizer vis, IProcessMonitor monitor, IAi ai, TextWriter writer)
 		{
 			this.settings = settings;
 			this.gen = gen;
 			this.vis = vis;
 			this.monitor = monitor;
 			this.ai = ai;
+			this.writer = writer;
 		}
 
 		public void TestSingleFile(string exe)
@@ -46,7 +49,7 @@ namespace battleships
 					shots.Add(game.TurnsCount);
 				if (settings.Verbose)
 				{
-					Console.WriteLine(
+					writer.WriteLine(
 						"Game #{3,4}: Turns {0,4}, BadShots {1}{2}",
 						game.TurnsCount, game.BadShots, game.AiCrashed ? ", Crashed" : "", gameIndex);
 				}
@@ -64,7 +67,7 @@ namespace battleships
 				{
 					vis.Visualize(game);
 					if (game.AiCrashed)
-						Console.WriteLine(game.LastError.Message);
+						writer.WriteLine(game.LastError.Message);
 					Console.ReadKey();
 				}
 			}
@@ -84,11 +87,11 @@ namespace battleships
 			var headers = FormatTableRow(new object[] { "AiName", "Mean", "Sigma", "Median", "Crashes", "Bad%", "Games", "Score" });
 			var message = FormatTableRow(new object[] { ai.Name, mean, sigma, median, crashes, badFraction, gamesPlayed, score });
 			resultsLog.Info(message);
-			Console.WriteLine();
-			Console.WriteLine("Score statistics");
-			Console.WriteLine("================");
-			Console.WriteLine(headers);
-			Console.WriteLine(message);
+			writer.WriteLine();
+			writer.WriteLine("Score statistics");
+			writer.WriteLine("================");
+			writer.WriteLine(headers);
+			writer.WriteLine(message);
 		}
 
 		private string FormatTableRow(object[] values)
