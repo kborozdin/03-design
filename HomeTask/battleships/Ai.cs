@@ -100,10 +100,5 @@ namespace battleships
 				throw new Exception("Wrong ai output: " + output, e);
 			}
 		}
-
-		public void Reset()
-		{
-			process = null;
-		}
 	}
 }

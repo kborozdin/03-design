@@ -4,10 +4,10 @@ namespace battleships
 {
 	public interface ISettings
 	{
-		int CrashLimit { get; set; }
-		int GamesCount { get; set; }
-		int Height { get; set; }
-		bool Interactive { get; set; }
+		int CrashLimit { get; }
+		int GamesCount { get; }
+		int Height { get; }
+		bool Interactive { get; }
 		int MemoryLimit { get; set; }
 		int RandomSeed { get; set; }
 		int[] Ships { get; set; }
