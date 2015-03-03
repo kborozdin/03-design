@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using Ninject;
 using Ninject.Parameters;
+using Ninject.Extensions.Conventions;
 
 namespace battleships
 {
@@ -24,15 +25,14 @@ namespace battleships
 			var random = new Random(settings.RandomSeed);
 
 			var kernel = new StandardKernel();
-			kernel.Bind<ISettings>().ToConstant<ISettings>(settings);
-			kernel.Bind<Random>().ToConstant<Random>(random);
-			kernel.Bind<TextWriter>().ToConstant<TextWriter>(Console.Out);
-
-			kernel.Bind<IMapGenerator>().To<MapGenerator>();
-			kernel.Bind<IGameVisualizer>().To<GameVisualizer>();
-			kernel.Bind<IProcessMonitor>().To<ProcessMonitor>();
-			kernel.Bind<IAi>().To<Ai>().WithConstructorArgument("exePath", aiPath);
-			kernel.Bind<IAiTester>().To<AiTester>();
+			kernel.Bind(x => x.FromThisAssembly().SelectAllClasses().BindAllInterfaces());
+			kernel.Rebind<ISettings>().ToConstant<Settings>(settings);
+			kernel.Rebind<Random>().ToConstant<Random>(random);
+			kernel.Rebind<IProcessMonitor>().To<ProcessMonitor>().InSingletonScope();
+			kernel.Rebind<IUserInterface>().To<UserInterface>().WithConstructorArgument<bool>(settings.Interactive);
+			kernel.Rebind<IAiTester>().To<AiTester>()
+				.WithConstructorArgument<Func<string, IAi>>(s => kernel.Get<IAi>(new ConstructorArgument("exePath", s)))
+				.WithConstructorArgument<Func<IAi, Game>>(ai => new Game(kernel.Get<IMapGenerator>().GenerateMap(), ai));
 
 			var tester = kernel.Get<IAiTester>();
 

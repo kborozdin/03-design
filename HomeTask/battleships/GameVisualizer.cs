@@ -1,20 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace battleships
 {
 	public class GameVisualizer : IGameVisualizer
 	{
-		public void Visualize(Game game)
+		public IEnumerable<string> Visualize(Game game)
 		{
-			Console.Clear();
-			Console.WriteLine(MapToString(game));
-			Console.WriteLine("Turn: {0}", game.TurnsCount);
-			Console.WriteLine("Last target: {0}", game.LastTarget);
+			yield return MapToString(game);
+			yield return string.Format("Turn: {0}", game.TurnsCount);
+			yield return string.Format("Last target: {0}", game.LastTarget);
 			if (game.BadShots > 0)
-				Console.WriteLine("Bad shots: " + game.BadShots);
+				yield return string.Format("Bad shots: " + game.BadShots);
 			if (game.IsOver())
-				Console.WriteLine("Game is over");
+				yield return "Game is over";
 		}
 
 		private string MapToString(Game game)

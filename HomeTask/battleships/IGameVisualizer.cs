@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 
 namespace battleships
 {
 	public interface IGameVisualizer
 	{
-		void Visualize(Game game);
+		IEnumerable<string> Visualize(Game game);
 	}
 }
 

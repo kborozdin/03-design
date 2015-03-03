@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ninject.Extensions.Conventions">
+      <HintPath>..\packages\Ninject.Extensions.Conventions.3.2.0.0\lib\net45-full\Ninject.Extensions.Conventions.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\external_packages\NLog.dll</HintPath>
     </Reference>
@@ -56,7 +59,8 @@
     <Compile Include="Ai.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameVisualizer.cs" />
-    <Compile Include="IUserUi.cs" />
+    <Compile Include="UserInterface.cs" />
+    <Compile Include="IUserInterface.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapGenerator.cs" />
     <Compile Include="Map_should.cs" />

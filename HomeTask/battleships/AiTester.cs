@@ -9,18 +9,16 @@ namespace battleships
     {
         private static readonly Logger resultsLog = LogManager.GetLogger("results");
         private readonly ISettings settings;
-        private readonly IGameVisualizer vis;
         private readonly Func<string, IAi> createAi;
         private readonly Func<IAi, Game> createNewGame;
-        private readonly IUserUi userUi;
+        private readonly IUserInterface userInterface;
 
-        public AiTester(ISettings settings, IGameVisualizer vis, Func<string, IAi> createAi, Func<IAi, Game> createNewGame, IUserUi userUi)
+        public AiTester(ISettings settings, Func<string, IAi> createAi, Func<IAi, Game> createNewGame, IUserInterface userInterface)
         {
             this.settings = settings;
-            this.vis = vis;
             this.createAi = createAi;
             this.createNewGame = createNewGame;
-            this.userUi = userUi;
+            this.userInterface = userInterface;
         }
 
         public void TestSingleFile(string exe)
@@ -29,7 +27,9 @@ namespace battleships
             var crashes = 0;
             var gamesPlayed = 0;
             var shots = new List<int>();
-            using (var ai = createAi(exe))
+
+			IAi ai = null;
+            using (ai = createAi(exe))
             {
                 for (var gameIndex = 0; gameIndex < settings.GamesCount; gameIndex++)
                 {
@@ -40,13 +40,17 @@ namespace battleships
                     if (game.AiCrashed)
                     {
                         crashes++;
-                        if (crashes > settings.CrashLimit) break;
+                        if (crashes > settings.CrashLimit)
+							break;
+						ai = createAi(exe);
                     }
                     else
                         shots.Add(game.TurnsCount);
-                    if (settings.Verbose)
-                        userUi.WriteLine(string.Format("Game #{3,4}: Turns {0,4}, BadShots {1}{2}", game.TurnsCount,
-                            game.BadShots, game.AiCrashed ? ", Crashed" : "", gameIndex));
+					if (settings.Verbose)
+					{
+						userInterface.WriteLine(string.Format("Game #{3,4}: Turns {0,4}, BadShots {1}{2}", game.TurnsCount,
+							game.BadShots, game.AiCrashed ? ", Crashed" : "", gameIndex));
+					}
                 }
                 WriteTotal(shots, crashes, badShots, gamesPlayed, ai.Name);
             }
@@ -59,10 +63,10 @@ namespace battleships
                 game.MakeStep();
                 if (settings.Interactive)
                 {
-                    vis.Visualize(game);
+                    userInterface.Visualize(game);
                     if (game.AiCrashed)
-                        userUi.WriteLine(game.LastError.Message);
-                    Console.ReadKey();
+                        userInterface.WriteLine(game.LastError.Message);
+                    userInterface.ReadKey();
                 }
             }
         }
@@ -71,25 +75,25 @@ namespace battleships
         {
             if (shots.Count == 0) shots.Add(1000*1000);
             shots.Sort();
-            var median = shots.Count%2 == 1
-                ? shots[shots.Count/2]
-                : (shots[shots.Count/2] + shots[(shots.Count + 1)/2])/2;
+			var median = shots.Count % 2 == 1
+				? shots[shots.Count / 2]
+				: (shots[shots.Count / 2] + shots[(shots.Count + 1) / 2]) / 2;
             var mean = shots.Average();
-            var sigma = Math.Sqrt(shots.Average(s => (s - mean)*(s - mean)));
+			var sigma = Math.Sqrt(shots.Average(s => (s - mean) * (s - mean)));
             var badFraction = (100.0*badShots)/shots.Sum();
             var crashPenalty = 100.0*crashes/settings.CrashLimit;
-            var efficiencyScore = 100.0*(settings.Width*settings.Height - mean)/(settings.Width*settings.Height);
+			var efficiencyScore = 100.0 * (settings.Width * settings.Height - mean) / (settings.Width * settings.Height);
             var score = efficiencyScore - crashPenalty - badFraction;
-            var headers =
-                FormatTableRow(new object[] {"AiName", "Mean", "Sigma", "Median", "Crashes", "Bad%", "Games", "Score"});
-            var message =
-                FormatTableRow(new object[] {aiName, mean, sigma, median, crashes, badFraction, gamesPlayed, score});
+			var headers =
+				FormatTableRow(new object[] { "AiName", "Mean", "Sigma", "Median", "Crashes", "Bad%", "Games", "Score" });
+			var message =
+				FormatTableRow(new object[] { aiName, mean, sigma, median, crashes, badFraction, gamesPlayed, score });
             resultsLog.Info(message);
-            userUi.WriteLine("");
-            userUi.WriteLine("Score statistics");
-            userUi.WriteLine("================");
-            userUi.WriteLine(headers);
-            userUi.WriteLine(message);
+            userInterface.WriteLine("");
+			userInterface.WriteLine("Score statistics");
+            userInterface.WriteLine("================");
+            userInterface.WriteLine(headers);
+            userInterface.WriteLine(message);
         }
 
         private string FormatTableRow(object[] values)

@@ -8,12 +8,12 @@ namespace battleships
 		int GamesCount { get; }
 		int Height { get; }
 		bool Interactive { get; }
-		int MemoryLimit { get; set; }
-		int RandomSeed { get; set; }
-		int[] Ships { get; set; }
-		int TimeLimitSeconds { get; set; }
-		bool Verbose { get; set; }
-		int Width { get; set; }
+		int MemoryLimit { get; }
+		int RandomSeed { get; }
+		int[] Ships { get; }
+		int TimeLimitSeconds { get; }
+		bool Verbose { get; }
+		int Width { get; }
 
 		TimeSpan TimeLimit { get; }
 	}
