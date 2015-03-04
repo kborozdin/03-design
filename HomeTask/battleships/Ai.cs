@@ -6,19 +6,17 @@ using NLog;
 
 namespace battleships
 {
-	public delegate void OnProcessRegisteredHandler(Process process);
-
-	public class Ai
+	public class Ai : IDisposable
 	{
 		private static readonly Logger log = LogManager.GetCurrentClassLogger();
 		private Process process;
 		private readonly string exePath;
+		private readonly Action<Process> registerProcess;
 
-		public event OnProcessRegisteredHandler OnProcessRegistered;
-
-		public Ai(string exePath)
+		public Ai(string exePath, Action<Process> registerProcess)
 		{
 			this.exePath = exePath;
+			this.registerProcess = registerProcess;
 		}
 
 		public string Name
@@ -77,7 +75,7 @@ namespace battleships
 				WindowStyle = ProcessWindowStyle.Hidden
 			};
 			var aiProcess = Process.Start(startInfo);
-			OnProcessRegistered(aiProcess);
+			registerProcess(aiProcess);
 			return aiProcess;
 		}
 

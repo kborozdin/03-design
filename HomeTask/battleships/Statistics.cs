@@ -6,31 +6,32 @@ using System.Threading.Tasks;
 
 namespace battleships
 {
-	class Statistics
+	public class Statistics
 	{
 		public int BadShots { get; private set; }
 		public int Crashes { get; private set; }
 		public List<int> Shots { get; private set; }
+		public int GamesPlayed { get; private set; }
+		public string AiName { get; private set; }
 
 		public Statistics()
 		{
-			BadShots = Crashes = 0;
 			Shots = new List<int>();
 		}
 
-		public void AddToBadShots(int delta)
+		public void AddStatsOfGame(Game game)
 		{
-			BadShots += delta;
+			GamesPlayed++;
+			BadShots += game.BadShots;
+			if (game.AiCrashed)
+				Crashes++;
+			else
+				Shots.Add(game.TurnsCount);
 		}
 
-		public void HaveCrushed()
+		public void SetName(string aiName)
 		{
-			Crashes++;
-		}
-
-		public void AddShot(int shot)
-		{
-			Shots.Add(shot);
+			AiName = aiName;
 		}
 	}
 }

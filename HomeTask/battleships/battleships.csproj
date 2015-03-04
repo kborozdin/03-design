@@ -60,6 +60,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="AiTester.cs" />
     <Compile Include="Statistics.cs" />
+    <Compile Include="StatisticsFormatter.cs" />
     <Compile Include="Vector.cs" />
   </ItemGroup>
   <ItemGroup>
